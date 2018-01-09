@@ -27,3 +27,7 @@ UARTCAN具备BRIDGE工作模式，该模式下使用简单的封包结构，便用用户编程处理。
 - 体积小巧便携使用方便
 - 支持固件升级
 - 成本低廉
+
+## 购买链接
+- [USB版本](https://item.taobao.com/item.htm?spm=a1z10.1-c.w4004-9102396040.29.7db0abad4tIeu4&id=531094225355)
+- [TTL版本](https://item.taobao.com/item.htm?spm=a1z10.5-c.w4002-9102396035.21.602f430flFQ0SU&id=531124016757)
