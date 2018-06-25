@@ -2,7 +2,7 @@
 UARTCAN是一款CAN接口调试工具。可以使CAN接口调试与串口调试一样方便。配合低成本的
 USB转TTL数据线，可以将UARTCAN转化成一款USBCAN设备。
 
-UARTCAN同样提供USB接口版本。
+UARTCAN同样提供USB接口版本，USB接口版本与TTL接口版本操作完全相同。
 
 ### TERM模式
 UARTCAN具备独特的TERM工作模式，借助超级终端等终端模拟软件，可以在PC上轻松进行
@@ -14,7 +14,7 @@ CRC数据校验保证了数据完整性，特别适合用户编程处理。该�
 常见的CANTest软件来进行调试。
 
 ### BRIDGE工作模式
-UARTCAN具备BRIDGE工作模式，该模式下使用简单的封包结构，便用用户编程处理。
+UARTCAN具备BRIDGE工作模式，该模式下使用简单的封包结构，便于用户编程处理。
 
 ## 主要特性
 - 32位ARM处理器72M主频处理能力强大
@@ -27,6 +27,14 @@ UARTCAN具备BRIDGE工作模式，该模式下使用简单的封包结构，便�
 - 体积小巧便携使用方便
 - 支持固件升级
 - 成本低廉
+
+## 用户界面
+
+- 短按按键LED指示工作模式
+  1. 无闪烁：BRIDGE
+  2. 闪一次：PKT
+  3. 闪两次：TERM
+- 长按按键切换工作模式
 
 ## 购买链接
 - [USB版本](https://item.taobao.com/item.htm?spm=a1z10.1-c.w4004-9102396040.29.7db0abad4tIeu4&id=531094225355)
