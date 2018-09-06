@@ -4,6 +4,8 @@ USB转TTL数据线，可以将UARTCAN转化成一款USBCAN设备。
 
 UARTCAN同样提供USB接口版本，USB接口版本与TTL接口版本操作完全相同。
 
+上位机软件[超级终端](HOST/HyperTerminal.7z)，XP系统自带，Win7及以上系统点击下载。
+
 ### TERM模式
 UARTCAN具备独特的TERM工作模式，借助超级终端等终端模拟软件，可以在PC上轻松进行
 CAN接口调试。用户只需要学习少数几个命令，便可以轻松上手。
