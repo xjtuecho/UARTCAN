@@ -1,109 +1,109 @@
 
-## ���Խ���
+## 特性介绍
 
-XBOOT��һ��TI C2000ƽ̨��bootloader���������USBTTL��USBCAN��Ӳ��������ʵ��
-C2000ϵ��DSP�̼�IAP���ܡ�
+XBOOT是一款TI C2000平台的bootloader软件，配合USBTTL，USBCAN等硬件，可以实现
+C2000系列DSP固件IAP功能。
 
-XBOOT��Ϊ�����汾�Ͷ��ư汾�������汾��ѣ������������޼���֧�֣����ư汾
-��������ҵ���ϣ��ṩ���޵ļ���֧�֡�
+XBOOT分为基础版本和定制版本，基础版本免费，用于评估，无技术支持，定制版本
+可用于商业场合，提供有限的技术支持。
 
-### �����汾����
+### 基础版本特性
 
-- ֧��TMS320F28335/TMS320F28069/TMS320F28035��
-- 28335ʹ��30M�ⲿ����28069/28035ʹ���ڲ�10M����
-- ֧��1��CAN��28335֧��3��UART��28069֧��2��UART��28035֧��1��UART��ͨѶGPIO�̶���
-- CAN�ӿڲ����ʹ̶�500kbps��
-- ���ڲ����ʹ̶�115200bps��
-- �޹̼����ܹ��ܡ�
-- ֻ֧��1���û�������ڵ�ַ�̶���
-- ֧���û��̼����¡�
+- 支持TMS320F28335/TMS320F28069/TMS320F28035。
+- 28335使用30M外部晶振，28069/28035使用内部10M晶振。
+- 支持1个CAN，28335支持3个UART，28069支持2个UART，28035支持1个UART，通讯GPIO固定。
+- CAN接口波特率固定500kbps。
+- 串口波特率固定115200bps。
+- 无固件加密功能。
+- 只支持1个用户程序，入口地址固定。
+- 支持用户固件更新。
 
-### ���ư汾����
+### 定制版本特性
 
-- ֧��C2000ϵ������оƬ��������FLASH��С��оƬ���⣩��
-- �ⲿ����Ƶ�ʿ�ѡ��
-- ֧��һ��CAN�ӿڣ�3��TTL���ڻ���485�ӿڣ�����ͨѶ��GPIO��ѡ��
-- CAN�ӿڲ����ʿɶ�ֵ��Ĭ��500kbps��
-- ���ڲ����ʿɶ��ƣ�Ĭ��115200bps��
-- ���Դ��̼����ܹ��ܣ�ȷ���û��̼���ȫ��
-- �ɶ�ȡFLASH��SRAM���������ݡ�
-- ֧�����6���û����򡣿��������ϵ���Զ����е��û�����
-- ֧���û��̼����¡�
-- �ɷ�������ģ��EEPROM��
-- ����������ȫ��ΨһID�����ڲ�Ʒ���кţ��̼����ܵȳ��ϡ�
+- 支持C2000系列所有芯片（极少数FLASH过小的芯片除外）。
+- 外部晶振频率可选。
+- 支持一个CAN接口，3个TTL串口或者485接口，用于通讯的GPIO可选。
+- CAN接口波特率可定值，默认500kbps。
+- 串口波特率可定制，默认115200bps。
+- 可自带固件加密功能，确保用户固件安全。
+- 可读取FLASH、SRAM、外设内容。
+- 支持最多6个用户程序。可以设置上电后自动运行的用户程序。
+- 支持用户固件更新。
+- 可访问内置模拟EEPROM。
+- 可设置器件全球唯一ID，用于产品序列号，固件加密等场合。
 
-### Ӳ����Դռ��
+### 硬件资源占用
 
-- FLASH��FLASHA��FLASHB
-- ��ʱ����CpuTimer0
-- ͨ�Žӿ�
+- FLASH：FLASHA和FLASHB
+- 定时器：CpuTimer0
+- 通信接口
   1. SCIA (GPIO28/GPIO29)(28335/28069/28035)
   2. SCIB (GPIO22/GPIO23)(28335/28069)
   3. SCIC (GPIO62/GPIO63)(28335)
   4. ECANA (GPIO30/GPIO31)(28335/28069/28035)
-- ������ת�û������Ժ�XBOOT�������У����SRAM���û������޳�ͻ��
+- 由于跳转用户程序以后XBOOT不再运行，因此SRAM与用户程序无冲突。
 
-## ����ԭ��
+## 工作原理
 
-### C2000�ϵ���������
+### C2000上电引导过程
 
-C2000ϵ��DSP�ϵ��Ժ���ڲ�BOOTROM�������ϵ縴λ�Ժ�DSP��ת��0x3FFFC0ִ���ڲ�
-BOOTROM�еĴ��룬�����ض�GPIO״̬���ж�����ģʽ��һ���ʹ��FLASH����ģʽ��
-��BOOTROM�д���ִ�����֮�󽫿���Ȩ����FLASH�еĴ��롣
+C2000系列DSP上电以后从内部BOOTROM引导，上电复位以后DSP跳转到0x3FFFC0执行内部
+BOOTROM中的代码，根据特定GPIO状态，判断引导模式，一般均使用FLASH引导模式，
+即BOOTROM中代码执行完毕之后将控制权交给FLASH中的代码。
 
-������������ͼ��ʾ��
+整个过程如下图所示：
  
-![28335�ϵ���������](PIC/image1.png "28335�ϵ���������")
+![28335上电引导过程](PIC/image1.png "28335上电引导过程")
 
-### XBOOT����ԭ��
+### XBOOT工作原理
 
-C2000����BOOTROMͨ��GPIO���ж�����ģʽ���������ʱ��Ҫ����������ߣ�ÿ�θ��³���
-Ҫ������ߣ�ʹ�ò��㡣ͬʱ�ڲ�BOOTROM�еĴ���ֻ��ִ�м򵥵Ĵ�����¹��ܡ�
+C2000内置BOOTROM通过GPIO来判断引导模式，单板设计时需要设计引导跳线，每次更新程序
+要插拔跳线，使用不便。同时内部BOOTROM中的代码只能执行简单的代码更新功能。
  
-![XBOOT����ԭ��](PIC/image2.png "XBOOT����ԭ��")
+![XBOOT工作原理](PIC/image2.png "XBOOT工作原理")
 
-ʵ����C2000ϵ��DSP��FLASH�ռ�����ʮ�ֳ��㣬��FLASH��������(sector)����Ϊ�����֣�
-FLASHA������BOOTROM����ת��ַ0x33FFF6���������XBOOT����FLASHB����ģ������EEPROM��
-ʣ�µ�����FLASH����û�����
+实际中C2000系列DSP的FLASH空间往往十分充足，将FLASH按照扇区(sector)划分为几部分，
+FLASHA包含了BOOTROM的跳转地址0x33FFF6，用来存放XBOOT程序；FLASHB用来模拟内置EEPROM；
+剩下的所有FLASH存放用户程序。
 
-�ϵ��Ժ�FLASHA�е�XBOOT��������ִ�У����ݴ��ڻ���CAN�ӿ��������жϽ����û�����
-����XBOOT shell�����0.5����ĳ�������������յ�5����ĸ��e��������XBOOT shell��
-��������û����򡣸���ƻ�����ϵ�0.5����ϵ���ʱ��һ������¿��Խ��ܣ������ĺô�
-��Ӳ����������������ߡ�XBOOT shell�п���ִ���û��̼�IAP���¹��ܡ�
+上电以后，FLASHA中的XBOOT代码首先执行，根据串口或者CAN接口数据流判断进入用户程序
+还是XBOOT shell，如果0.5秒内某个串口上连续收到5个字母’e’，进入XBOOT shell，
+否则进入用户程序。该设计会带来上电0.5秒的上电延时，一般情况下可以接受，带来的好处
+是硬件设计无需额外的跳线。XBOOT shell中可以执行用户固件IAP更新功能。
 
-## ʹ�÷���
+## 使用方法
 
-### ����XBOOT shell����
+### 进入XBOOT shell方法
 
-XBOOT�ϵ������Ժ���0.5���ڼ�⴮�����룬����յ�����5����ĸ��e���������XBOOT shell��
-�������ģ��EEPROM��ȡ�û�������ڵ㣬����û�������Ч��ִ���û����򣬷������XBOOT shell��
+XBOOT上电启动以后在0.5秒内检测串口输入，如果收到连续5个字母“e”，便进入XBOOT shell；
+否则访问模拟EEPROM获取用户程序入口点，如果用户程序有效，执行用户程序，否则进入XBOOT shell。
 
-ʹ�ó����ն����Ӵ��ڣ�`������115200��8λ���ݣ�1λֹͣ����У�飬������`����ס������
-����ĸ��e����������ư��ϵĸ�λ���������߸����ư������ϵ硣���Խ���XBOOT shell��
+使用超级终端连接串口，`波特率115200，8位数据，1位停止，无校验，无流控`。按住键盘上
+的字母“e”，点击控制板上的复位按键，或者给控制板重新上电。可以进入XBOOT shell。
 
-CAN�ӿڽ���UARTCAN����USBCANӲ�������ù���ģʽΪ�Ž�ģʽ������ʹ�÷����봮����ȫ��ͬ��
+CAN接口借助UARTCAN或者USBCAN硬件，设置工作模式为桥接模式，其余使用方法与串口完全相同。
 
-�����ն�ΪWindows XP�Դ�����ͨ��`��ʼ->���г���->����->ͨѶ->�����ն�`�򿪡�
-Windows7ϵͳ���������նˣ����Խ�Windows XPϵͳ�ĳ����ն�����������ȥֱ��ʹ�á�
+超级终端为Windows XP自带程序，通过`开始->所有程序->附件->通讯->超级终端`打开。
+Windows7系统不带超级终端，可以将Windows XP系统的超级终端软件拷贝过去直接使用。
 
-### �����û�������ϸ����
+### 更新用户软件详细步骤
 
-��������XBOOT shell��ʹ��empty����鿴Ҫд���FLASH�Ƿ�Ϊ�գ������Ϊ�գ�ʹ��
-`erase x`���������������FLASH������xΪFLASH���֣�ȡֵ`a��b��c��`.
+首先连接XBOOT shell，使用empty命令查看要写入的FLASH是否为空，如果不为空，使用
+`erase x`命令擦除软件所在FLASH，其中x为FLASH名字，取值`a、b、c…`.
 
-ʹ��ymodem��������û�������
+使用ymodem命令更新用户软件。
 
-**ע��**��erase a�����������XBOOT��������FLASH���ݣ�Ҳ�����������룬��������
-FLASH�����Ժ����֮ǰ��XBOOT��Ȼ�������в��Ҹ��³�����������Ժ���磬ֻ��ʹ��
-��������XBOOTд��DSP�����û�����д��δ������FLASH���н�����ǲ�ȷ���ġ�
+**注意**：erase a命令将擦除包括XBOOT在内所有FLASH内容，也包括加密密码，擦除所有
+FLASH内容以后掉电之前，XBOOT仍然可以运行并且更新程序，如果擦除以后掉电，只能使用
+仿真器将XBOOT写入DSP。将用户代码写入未擦除的FLASH运行结果将是不确定的。
 
-## ��������
+## 基础命令
 
-���ڶԻ�����XBOOT�ṩ���������������
+本节对基础版XBOOT提供的命令进行描述。
 
 ### empty
 
-FLASH�������޲�������������û�FLASH�Ƿ�Ϊ�ա�
+FLASH查空命令，无参数，用来检测用户FLASH是否为空。
 
 ``` 
 empty
@@ -117,17 +117,17 @@ empty
  FLASHH is empty @ 0x300000.
 ```
 
-**ע��**��C2000ϵ��DSP��FLASH��С������λ��һ��������д��֮ǰ����ȷ��Ϊ�գ�������Ҫ�Ƚ��в�����
+**注意**：C2000系列DSP的FLASH最小擦除单位是一个扇区，写入之前必须确保为空，否则需要先进行擦除。
 
 ### erase 
 
-FLASH�������
-erase�������һ���ַ���������abcdefgh���ֱ��Ӧ8��FLASH����������ͬʱָ��
-���FLASH��������`erase bcd`��������b c d����flash������
+FLASH擦除命令。
+erase命令接受一个字符串参数：abcdefgh，分别对应8个FLASH扇区。可以同时指定
+多个FLASH扇区，如`erase bcd`命令将会擦除b c d三个flash扇区。
 
-**ע��**��erase a�����������XBOOT��������FLASH���ݣ�Ҳ�����������룬��������
-FLASH�����Ժ����֮ǰ��XBOOT��Ȼ�������в��Ҹ��³�����������Ժ���磬ֻ��ʹ��
-��������XBOOTд��DSP�����û�����д��δ������FLASH���н�����ǲ�ȷ���ġ�
+**注意**：erase a命令将擦除包括XBOOT在内所有FLASH内容，也包括加密密码，擦除所有
+FLASH内容以后掉电之前，XBOOT仍然可以运行并且更新程序，如果擦除以后掉电，只能使用
+仿真器将XBOOT写入DSP。将用户代码写入未擦除的FLASH运行结果将是不确定的。
  
 ```
 empty
@@ -154,8 +154,8 @@ empty
 
 ### reboot
 
-����ϵͳ����һ����ʱ��������λms��ִ��reboot 1000����ʱ1���Ժ�����������
-�޲���Ĭ��10ms��ʱ�Ժ�����������
+重启系统。带一个延时参数，单位ms。执行reboot 1000即延时1秒以后重新启动，
+无参数默认10ms延时以后重新启动。
 
 ```
 reboot
@@ -167,14 +167,14 @@ reboot 500
 
 ### ymodem
 
-ʹ��ymodemЭ������û�������
+使用ymodem协议更新用户软件。
 
-ִ��ymodem��������ն���ʾ�ַ�`C`�Ժ�ѡ��˵�`����->�����ļ�`���ļ���ѡ��
-�û������hex�ļ���Э��ѡ��Ymodem��������ͼ��ɡ�
+执行ymodem命令，超级终端显示字符`C`以后，选择菜单`发送->发送文件`，文件名选择
+用户程序的hex文件，协议选择Ymodem，点击发送即可。
  
-![ѡȡ���͵�hex�ļ�](PIC/image5.png "ѡȡ���͵�hex�ļ�")
+![选取发送的hex文件](PIC/image5.png "选取发送的hex文件")
  
-![APP�̼����͹���](PIC/image6.png "APP�̼����͹���")
+![APP固件发送过程](PIC/image6.png "APP固件发送过程")
 
 ```
 ymodem
@@ -187,13 +187,13 @@ ymodem
   End Addr:  0x32F874
 ```
 
-ִ��ymodem�����Ժ󣬳����ն���ʾCʱ�����԰���ĸaȡ�����
+执行ymodem命令以后，超级终端显示C时，可以按字母a取消命令。
 
-�û����͵�APP�̼���**����ʹ��FLASHA����FLASHB**�����򽫻���XBOOT�̼���
+用户发送的APP固件，**不能使用FLASHA或者FLASHB**，否则将会损坏XBOOT固件。
 
 ### help 
 
-��ʾXBOOT������Ϣ��
+显示XBOOT帮助信息。
 
 ```
 help
@@ -210,11 +210,11 @@ help
  version -> version display bootloader Info.
 ```
 
-**ע��**�������汾��֧��entry��memrd��goto��eeprom��uuid���
+**注意**：基础版本不支持entry、memrd、goto、eeprom、uuid命令。
 
 ### version
 
-��ʾXBOOT�汾�Ͱ�Ȩ��Ϣ��
+显示XBOOT版本和版权信息。
  
 ```
 version
@@ -223,17 +223,17 @@ version
  All Rights Reserved.
 ```
 
-**ע��**��û��д��ΨһID��DSPоƬ�����к�SN����ΪȫFF��
+**注意**：没有写入唯一ID的DSP芯片，序列号SN内容为全FF。
 
-## �߼�����
+## 高级命令
 
-���ư�XBOOT����֧�ָ߼����ܣ�ͨ�������ṩ�ĸ߼��������֧�֡�
+定制版XBOOT可以支持高级功能，通过本节提供的高级命令进行支持。
 
 ### entry
 
-���á��鿴�û�������ڵ㡣
+设置、查看用户程序入口点。
 
-Ĭ���޲����鿴��ǰ�û�������ڵ㣬��һ������Ϊ�����û�������ڵ㡣
+默认无参数查看当前用户程序入口点，带一个参数为设置用户程序入口点。
  
 ```
 entry
@@ -246,10 +246,10 @@ entry
 
 ### memrd 
 
-��ȡDSP�ڴ档�ڴ��ַ����SRAM��FLASH����ַ��
+读取DSP内存。内存地址包括SRAM、FLASH、地址。
 
-memrd�������������������һ��ΪҪ��ȡ���ڴ��ַ���ڶ���ΪҪ��ȡ�����ݳ��ȣ�
-Ĭ��128��ȫ��Ϊʮ�����ơ�
+memrd命令接受两个参数，第一个为要读取的内存地址，第二个为要读取的数据长度，
+默认128。全部为十六进制。
  
 ```
 memrd 328000
@@ -274,8 +274,8 @@ memrd 328000
 
 ### goto
 
-��ת���µ�ִַ�С�
-����һ����λ������Ϊ������28335ƽ̨��goto 33fff6��������XBOOT����ͼ 11��
+跳转到新地址执行。
+接受一个复位向量作为参数。28335平台下goto 33fff6将会重启XBOOT，如图 11。
  
 ```
 goto 33FFF6
@@ -284,14 +284,14 @@ goto 33FFF6
 
 ### eeprom
 
-��дDSP�ڲ�ģ��EEPROM�����ĸ������`read��write��load��save`��
+读写DSP内部模拟EEPROM。带四个子命令：`read、write、load、save`。
 
-- ��eeprom��eeprom read [��ַ] [����]�����е�ַΪ��Ҫ���������ȿɲ��Ĭ��128�֣����ڲ������ȡ���ݡ�
-- дeeprom��eeprom write [��ַ] [����]�����е�ַ�����ݾ�Ϊ��Ҫ����������д���ڲ����档
-- ����eeprom��eeprom load�����ݴ�FLASH���ص��ڲ����档
-- �洢eeprom��eeprom save��eeprom���ݴ��ڲ�����д��FLASH�����籣�档
+- 读eeprom：eeprom read [地址] [长度]，其中地址为必要参数，长度可不填，默认128字，从内部缓存读取数据。
+- 写eeprom：eeprom write [地址] [数据]，其中地址和数据均为必要参数，数据写入内部缓存。
+- 加载eeprom：eeprom load，数据从FLASH加载到内部缓存。
+- 存储eeprom：eeprom save，eeprom数据从内部缓存写入FLASH，掉电保存。
 
-����ģ��eeprom�ܹ�255��16λ�֣�ǰ16����Ԥ����XBOOT����ʹ�ã������û�������á�
+内置模拟eeprom总共255个16位字，前16个字预留给XBOOT自身使用，其余用户程序可用。
  
 ```
 eeprom read 0
@@ -316,89 +316,89 @@ eeprom read 0
 
 ### uuid
 
-�鿴��������оƬ��ΨһID��оƬ��ΨһID��������оƬ���кš��������кš��豸���кš�
-�������������ܹ̼��������ִ�MCU��STM8��STM32��STC�����ṩ��ΨһID��TI C2000ϵ��
-MCUû���ṩΨһID��XBOOT����OTP�洢�ռ���ʵ��ΨһID���ܡ�
+查看或者设置芯片的唯一ID。芯片的唯一ID可以用作芯片序列号、单板序列号、设备序列号。
+还可以用来加密固件。许多现代MCU如STM8、STM32、STC本身提供了唯一ID，TI C2000系列
+MCU没有提供唯一ID，XBOOT利用OTP存储空间来实现唯一ID功能。
 
-����������uuid���������ʾ��ǰDSP��uuid��������ʾ�� 
+不带参数的uuid命令可以显示当前DSP的uuid，如下所示： 
 
 ```
 uuid
 BBF2CE53C8B54062B42C3E8423AD9E88
 ```
 
-�������û������uuid��uuid�����������δд��uuid�ĵ��壬����ʹ��uuid����д��uuid��
-������ʾ��
+如果单板没有设置uuid，uuid命令无输出。未写入uuid的单板，可以使用uuid命令写入uuid，
+如下所示：
 
 ```
 uuid BBF2CE53C8B54062B42C3E8423AD9E88
 ```
 
-**ע��**��һ�鵥��uuidֻ��д��һ�Σ�Ҫ��֤д���uuid**ÿ�ζ����������ɵ�**�������ظ���
-uuidд���Ժ����²�дFLASH������Ӱ�죬����uuid��Ψһ�����Ǹ����µ�оƬ��
+**注意**：一块单板uuid只能写入一次，要保证写入的uuid**每次都是重新生成的**，避免重复。
+uuid写入以后，重新擦写FLASH均不受影响，更换uuid的唯一方法是更换新的芯片。
 
-## �û�������дָ��
+## 用户软件编写指南
 
-### ��λ����
+### 复位向量
 
-TMS320F28335 FLASH��ڵ�ַΪ0x33FFF6�������ַλ��FLASHA���Ѿ���XBOOTռ�á�
-�û�������Ҫʹ������ĸ�λ������XBOOTĬ�ϻὫ��ڵ�ַ���õ�FLASHC��ͷ�����֣�
-��ַ0x328000���ϵ��XBOOT������ת��FLASHCִ���û����롣
+TMS320F28335 FLASH入口地址为0x33FFF6，这个地址位于FLASHA，已经被XBOOT占用。
+用户代码需要使用另外的复位向量。XBOOT默认会将入口地址设置到FLASHC开头两个字，
+地址0x328000，上电后XBOOT可以跳转到FLASHC执行用户代码。
 
-�û�������Ҫ����λ�����ŵ�����FLASH������ʼ�����֡������û��������FLASHC����λ
-����ռ��FLASHC��ʼ�����֡�
+用户代码需要将复位向量放到所在FLASH扇区开始两个字。所有用户代码放在FLASHC，复位
+向量占用FLASHC开始两个字。
  
-![�û�������λ������28335��](PIC/image14.png "�û�������λ������28335��")
+![用户软件复位向量（28335）](PIC/image14.png "用户软件复位向量（28335）")
 
-���ư�XBOOT�̼�����ʹ��entry�����������ø�λ������ʵ�ֶ�APP֧�֡�
-����XBOOT����ʹ��FLASHA��FLASHB���û�������ռ��������FLASH����дcmd�ļ�ʱ��Ҫע�⣬
-�û���������ע����map�ļ���ȷ������FLASHû��ʹ�á�
+定制版XBOOT固件可以使用entry命令重新设置复位向量，实现多APP支持。
+由于XBOOT本身使用FLASHA和FLASHB，用户程序不能占用这两处FLASH，编写cmd文件时需要注意，
+用户程序编译后注意检查map文件，确认两块FLASH没有使用。
  
-![�û������������ռ��FLASHA��FLASHB](PIC/image15.png "�û������������ռ��FLASHA��FLASHB")
+![用户软件编译后不能占用FLASHA和FLASHB](PIC/image15.png "用户软件编译后不能占用FLASHA和FLASHB")
 
-### ����hex�ļ�
+### 生成hex文件
 
-ʹ��hex2000�����й��߽�CCS�������ɵ�.out�ļ�ת��Ϊhex�ļ����������£�
+使用hex2000命令行工具将CCS编译生成的.out文件转化为hex文件。命令如下：
 
 ```
 hex2000 --intel -romwidth 16 -memwidth 16 TEST.out
 ```
 
-����TEST.outΪ��Ҫת����.out�ļ�������ʵ����Ҫ�����滻��.hex�ļ�ʵ��Ϊ�ı��ļ���
-����ʹ���ı��༭���򿪲鿴��
+其中TEST.out为需要转化的.out文件，根据实际需要进行替换。.hex文件实际为文本文件，
+可以使用文本编辑器打开查看。
 
-CCS5�������ñ�������Զ����hex�ļ������÷������£�
+CCS5可以设置编译完成自动输出hex文件，设置方法如下：
 
-�ڹ������ϰ�Alt+Enter����Ŀ��������ҳ��Ȼ������ͼ���ü��ɡ�
+在工程名上按Alt+Enter打开项目属性设置页，然后按照下图设置即可。
  
-![CCS5.5�����Զ����hex�ļ�](PIC/image16.png "CCS5.5�����Զ����hex�ļ�")
+![CCS5.5设置自动输出hex文件](PIC/image16.png "CCS5.5设置自动输出hex文件")
 
-## uuid����ָ��
+## uuid生成指南
 
-UUID������ͨ��Ψһʶ���� (Universally Unique Identifier)����ָ��һ̨���������ɵ�
-���֣�����֤����ͬһʱ���е����л�������Ψһ�ġ�ͨ��ʹ��һ��16�����ַ�����ʾ��
-�磺`BBF2CE53C8B54062B42C3E8423AD9E88`��
+UUID含义是通用唯一识别码 (Universally Unique Identifier)，是指在一台机器上生成的
+数字，它保证对在同一时空中的所有机器都是唯一的。通常使用一个16进制字符串表示，
+如：`BBF2CE53C8B54062B42C3E8423AD9E88`。
 
 ### Linux
 
-Linuxƽ̨�¿���ʹ��uuidgen��������uuid��ע������ʱȥ���м�ġ�-���ָ�����
+Linux平台下可以使用uuidgen命令生成uuid，注意输入时去掉中间的’-’分隔符。
  
-![Linux��ʹ��uuidgen��������uuid](PIC/image17.png "Linux��ʹ��uuidgen��������uuid")
+![Linux下使用uuidgen命令生成uuid](PIC/image17.png "Linux下使用uuidgen命令生成uuid")
 
 ### Windows
 
-Windowsƽ̨�¿���ʹ��PDFFactory����������uuid.
+Windows平台下可以使用PDFFactory软件来生成uuid.
  
-![Windows��ʹ��UUIDFactory����UUID](PIC/image18.png "Windows��ʹ��UUIDFactory����UUID")
+![Windows下使用UUIDFactory生成UUID](PIC/image18.png "Windows下使用UUIDFactory生成UUID")
 
-## ��������
+## 免责条款
 
-### ������
+### 基础版
 
-ʹ�÷�����ο����ĵ������߲��ṩ�κμ���֧���뱣֤��
+使用方法请参考本文档，作者不提供任何技术支持与保证。
 
-### ���ư�
+### 定制版
 
-��������ҵ���ϡ�ʹ�÷�����ο����ĵ���ͬʱ���߻ᾡ������ͻ����󣬲��ṩ���޵ļ���֧�֡�
-����֧�ֽ�������XBOOT�̼��������û���Ҫ�����ղ�Ʒ���Ը������߲��ṩ�û���Ʒ��
-����֧���뱣֤���û�ʹ��XBOOTĬ�Ͻ����������
+可用于商业场合。使用方法请参考本文档，同时作者会尽力满足客户需求，并提供有限的技术支持。
+技术支持仅仅限于XBOOT固件本身，用户需要对最终产品测试负责，作者不提供用户产品的
+技术支持与保证。用户使用XBOOT默认接受以上条款。
